@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:security="http://www.springframework.org/schema/security" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns="http://www.springframework.org/schema/beans"
+xsi:schemaLocation="http://www.springframework.org/schema/security 
+	http://www.springframework.org/schema/security/spring-security.xsd 
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="customAccessDenied" class="org.zerock.security.CustomAccessDeniedHandler"></bean>
+	<bean id="customLoginSuccess" class="org.zerock.security.CustomLoginSuccessHandler"></bean>
+	
+	<security:http>
+							<!-- Pattern체크 access 권한 체크확인  -->
+		<security:intercept-url pattern="/sample/all" access="permitAll"/>
+		
+		<security:intercept-url pattern="/sample/member" access="hasRole('ROLE_MEMBER')"/>
+	
+		<security:intercept-url pattern="/sample/admin" access="hasRole('ROLE_ADMIN')"/>
+		
+		<!-- security:access-denied-handler eooro-page속성과 ref 속성 둘 중 하나만을 사용함 -->
+	<!-- 	<security:access-denied-handler error-page="/accessError"/> -->
+		<security:access-denied-handler ref="customAccessDenied"/>
+		
+		<!-- <security:form-login/> -->
+		
+			<security:form-login login-page="/customLogin" authentication-success-handler-ref="customLoginSuccess"/>
+		<!--Logout -->
+			<security:logout logout-url="/customLogout" invalidate-session="true"/>
+		<!-- logout success-->
+		<!--logout-success-url="/sample/admin"  -->
+			
+			
+	</security:http>
+	
+	<security:authentication-manager>
+			
+			<security:authentication-provider>
+			
+				<security:user-service>
+					<!--Uesrname = uesrid user는 인증정보와 권한을 가지는 객체  -->
+					<!-- 스프링 시큐리티 5버전 부터는 PasswordEncoder의 지정이 있어야함
+						 인코딩 처리 없이 사용하고 싶다면 패스워드앞에 {noop} 문자열을 추가  -->
+					<security:user name="member" password="{noop}member" authorities="ROLE_MEMBER"/>
+					
+					<security:user name="admin" password="{noop}admin" authorities="ROLE_MEMBER, ROLE_ADMIN"/>
+						 
+				</security:user-service>
+			
+			</security:authentication-provider>
+			
+	
+	</security:authentication-manager>
+
+</beans>
